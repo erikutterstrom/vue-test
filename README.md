@@ -35,7 +35,7 @@ There are no right or wrong solutions, and a complete solution is not needed to 
 
 ## Setting: </br>
 - Tools - Computer
-- Time limit - 30 minutes
+- Time limit - 24 hours
 
 ## Objective:
 The candidate is supposed to use the project's boilerplate to create a functioning application. </br>
