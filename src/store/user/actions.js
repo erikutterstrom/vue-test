@@ -1,7 +1,12 @@
 const actions = {
-    removeUser({ commit }, user) {
-        commit('REMOVE_USERS', userId);
-    }
+  removeUsers({ commit }, userIds) {
+    userIds.forEach((userId) => {
+      commit("REMOVE_USER", userId);
+    });
+  },
+  addUser({ commit }, user) {
+    commit("ADD_USER", user);
+  },
 };
 
 export default actions;

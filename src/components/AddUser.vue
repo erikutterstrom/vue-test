@@ -1,113 +1,116 @@
 <template>
-  <form class="md:w-8/12 mx-auto my-10">
+  <form
+    class="px-3 md:px-0 md:w-8/12 mx-auto my-10"
+    @submit.prevent="addNewUser"
+    @keydown.enter.prevent
+  >
     <div class="flex flex-wrap -mx-3 mb-6">
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label
-          class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-          for="grid-first-name"
-          v-text="'First Name'"
-        />
-        <input
-          class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-          id="grid-first-name"
-          type="text"
-          placeholder="Enter First Name"
-          v-model="firstName"
-        >
-      </div>
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label
-          class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-          for="grid-last-name"
-          v-text="'Last Name'"
-        />
-        <input
-          class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-          id="grid-last-name"
-          type="text"
-          placeholder="Enter Last Name"
-          v-model="firstName"
-        >
-      </div>
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label
-          class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-          for="grid-date"
-          v-text="'Date of Birth'"
-        />
-        <input
-          class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-          id="grid-date"
-          type="date"
-          v-model="birthDate"
-        >
-      </div>
-      <div class="w-full md:w-1/3 px-3 mb-6 md:mb-0">
-        <label
-          class="block uppercase tracking-wide text-gray-700 text-xs font-bold mb-2"
-          for="grid-quote"
-          v-text="'Favorite Quote'"
-        />
-        <input
-          class="appearance-none block w-full bg-gray-200 text-gray-700 border rounded py-3 px-4 mb-3 leading-tight focus:outline-none focus:bg-white"
-          id="grid-quote"
-          type="text"
-          placeholder="Enter Quote"
-          v-model="quote"
-        >
-      </div>
-      <drop-down
-        :options="professions"
-        :changeSelect="selectProfession"
+      <Field
+        id="first-name"
+        label="First Name"
+        v-model="user.firstName"
+        required
       />
-      <drop-down />
+      <Field
+        id="last-name"
+        label="Last Name"
+        v-model="user.lastName"
+        required
+      />
+      <Field
+        id="date-of-birth"
+        label="Date of Birth"
+        type="date"
+        v-model="user.birthDate"
+        :max="currentDate"
+        required
+      />
+      <Field id="quote" label="Favorite Quote" v-model="user.quote" required />
+
+      <FieldDropDown
+        id="profession"
+        v-model="user.professionId"
+        label="Profession"
+        :options="professions"
+        required
+      />
+
+      <FieldDropDown
+        id="country"
+        v-model="user.countryId"
+        label="Country"
+        :options="countries"
+        required
+      />
     </div>
-    <button-component
-      :on-click="addUser"
-      :button-text="'Save User'"
-    />
+    <ButtonComponent type="submit"> Save User </ButtonComponent>
   </form>
 </template>
 
 <script>
-import { mapState, mapActions, mapMutations } from 'vuex';
-import DropDown from './DropDown';
-import ButtonComponent from './Button';
+import { mapActions } from "vuex";
+import FieldDropDown from "./FieldDropDown";
+import ButtonComponent from "./Button";
+import { PROFESSION_MAP } from "../data/profession";
+import { COUNTRY_MAP } from "../data/country";
+import Field from "./Field";
+
+const generateOptions = (map) =>
+  Object.entries(map).map(([key, value]) => ({
+    value: key,
+    text: value,
+  }));
+
+const formatDate = (date) => {
+  const year = date.getFullYear();
+  const month = String(date.getMonth() + 1).padStart(2, "0");
+  const day = String(date.getDate()).padStart(2, "0");
+  return `${year}-${month}-${day}`;
+};
 
 export default {
-  name: 'AddUser',
+  name: "AddUser",
   data() {
     return {
       user: {
-        firstName: '',
-        lastName: '',
-        birthDate: null,
-        quote: '',
+        firstName: "",
+        lastName: "",
+        birthDate: "",
+        quote: "",
+        professionId: null,
+        countryId: null,
       },
     };
   },
   components: {
-    DropDown,
+    FieldDropDown,
     ButtonComponent,
-  },
-  computed: {
-    ...mapState({
-      professions: state => state.professionModule.professions,
-    }),
+    Field,
   },
   methods: {
-    ...mapMutations({
-      setProfession: 'SET_PROFESSION',
-    }),
-    ...mapActions([
-      'addNewUsers',
-    ]),
-    addUser() {
-      this.addNewUser(this.user);
-    }
+    ...mapActions(["addUser"]),
+    addNewUser() {
+      this.addUser(this.user);
+      this.user = {
+        firstName: "",
+        lastName: "",
+        birthDate: "",
+        quote: "",
+        professionId: null,
+        countryId: null,
+      };
+    },
   },
-}
+  computed: {
+    professions() {
+      return generateOptions(PROFESSION_MAP);
+    },
+    countries() {
+      return generateOptions(COUNTRY_MAP);
+    },
+    currentDate() {
+      return formatDate(new Date());
+    },
+  },
+};
 </script>
-
-<style scoped>
-</style>
